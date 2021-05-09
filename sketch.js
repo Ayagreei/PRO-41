@@ -1,59 +1,93 @@
-var database;
-var back_img;
-var gameState =0;
-var playerCount = 0;
-var allPlayers;
-var score =0;
-var player, form,game;
-var player1,player2;
-var players;
-var fruits,A,B;
-var fruitGroup;
-var fruit1_img, fruit2_img, fruit3_img, fruit4_img, fruit5_img;
-var player_img;
-var player1score =0;
-var player2score =0;
+const Engine = Matter.Engine;
+const World = Matter.World;
+const Bodies = Matter.Bodies;
+var thunder, thunder1,thunder2,thunder3,thunder4;
+var batAnimation,bat;
+var engine, world;
+let drops = [];
+
+
+//var rand;
+
+
+
+var thunderCreatedFrame=0;
 
 function preload(){
-  back_img = loadImage("images/jungle.jpg");
-  player_img = loadImage("images/basket2.png");
-  fruit1_img = loadImage("images/apple2.png");
-  fruit2_img = loadImage("images/banana2.png");
-  fruit3_img = loadImage("images/melon2.png");
-  fruit4_img = loadImage("images/orange2.png");
-  fruit5_img = loadImage("images/pineapple2.png");
-  fruitGroup = new Group();
-}
-function setup() {
-  createCanvas(1400, 800);
-  database = firebase.database();
-  game = new Game();
-  game.getState();
-  game.start();
-  
+    thunder1 = loadImage("thunderbolt/1.png");
+    thunder2 = loadImage("thunderbolt/2.png");
+    thunder3 = loadImage("thunderbolt/3.png");
+    thunder4 = loadImage("thunderbolt/4.png");
+
+    batAnimation = loadAnimation("bat/bat1.png","bat/bat2.png","bat/bat3.png",
+                        "bat/bat4.png","bat/bat5.png","bat/bat6.png",
+                        "bat/bat7.png","bat/bat8.png","bat/bat9.png",
+                        "bat/bat10.png","bat/bat11.png","bat/bat12.png");
+   
 }
 
-function draw() {
-  background(back_img);
-  
+function setup(){
+   engine = Engine.create();
+   world = engine.world;
 
-  if (gameState == 1){
-    clear();
-    game.play();
-  }
-  if (gameState == 2){
-    game.end();
-  }
-  if (playerCount == 2){
-    game.update(1);
-  }
-  if(fruitGroup.isTouching(player1))
-  {
-    A = player.score ++
-  }
-  if(fruitGroup.isTouching(player2))
-  {
-    B = player.score ++
-  }
-  
+  createCanvas(400,700);
+    umbrella = new Umbrella(200,500);
+
+    //create drops
+   // drops = new Drops(200,200)
+
+    
 }
+
+function draw(){
+    Engine.update(engine);
+    background(0); 
+   // for(i=0;i<1;i++){
+        drops.push(new Drops(random(1,400),random(1,400)))
+      // }
+    //creating thunder
+    rand = Math.round(random(1,4));
+    if(frameCount%80===0){
+        thunderCreatedFrame=frameCount;
+        thunder = createSprite(random(10,370), random(10,30), 10, 10);
+        switch(rand){
+            case 1: thunder.addImage(thunder1);
+            break;
+            case 2: thunder.addImage(thunder2);
+            break; 
+            case 3: thunder.addImage(thunder3);
+            break;
+            case 4: thunder.addImage(thunder4);
+            break;
+            default: break;
+        }
+        thunder.scale = random(0.3,0.6)
+    }
+    bat= createSprite(Math.round(random(0,400)),Math.round(random(0,400)));
+    bat.addAnimation("moving_bat",batAnimation);
+    bat.visible = false;
+    if(frameCount % 100 === 0){
+       bat.visible = true;
+        bat.velocityX = Math.round(random(-4,4));
+        bat.velocityY = Math.round(random(-4,4));
+        bat.scale=0.4;
+        
+       
+    }
+    
+
+    if(thunderCreatedFrame + 10 ===frameCount && thunder){
+        thunder.destroy();
+    }
+console.log(drops.length);
+    umbrella.display();
+   // drops.display();
+    //display rain drops
+   for(var f=0; f<drops.length;f++)
+   {
+       drops[f].display();
+   }
+
+    drawSprites();
+}   
+
